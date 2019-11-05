@@ -134,8 +134,8 @@ def starInfo():
         line = line.split(",")
         if ";" in line[-1]:
             line[-1] = line[-1].split(";")
-            dct[line[-1][0]] = (line[0],line[1],line[2])
-            dct[line[-1][1]] = (line[0],line[1],line[2])
+            for i in range(len(line[-1])):
+                dct[line[-1][i]] = (line[0],line[1],line[2])
         else:
             dct[line[-1]] = (line[0],line[1],line[2])
         stars.append((line[0],line[1],line[2]))             #adds the star information to a list containing all of the star information
@@ -168,16 +168,53 @@ def drawStars(pointer,stars,starsDct,names):
         print(k,"is at (",v[0],v[1], ") with ", (10/(float(v[2])+2))/4, "magnitude")
     pass
 
+def loopConst(pointer,starsDct):
+    inpt = input("input a constellation file name (press enter to quit)")
+    while inpt != "":                  #loops untill the user quits or gives a correct file
+        try:
+            dat = open(inpt, 'r')
+            print("file opened")
+            constLst = readConst(dat)
+            drawConst(pointer, constLst, starsDct)
+            inpt = input("input a constellation file name (press enter to quit)")
+        except:
+            print("file doesn't exist")
+            inpt = input("input a constellation file name (press enter to quit)")
+    if inpt == "":
+        sys.exit(1)
+
+def readConst(dat):
+    datLst = []
+    nameLst = []
+    nameLst.append(dat.readline())
+    line = dat.readline()
+    while line != '':
+        line = line.rstrip("\n")
+        line = line.split(',')
+        datLst.append(line)
+        if line[0] not in nameLst:
+            nameLst.append(line[0])
+        if line[1] not in nameLst:
+            nameLst.append(line[1])
+        line = dat.readline()
+    print(nameLst[0], "constellation contains", nameLst[1:])
+    return datLst
+
+def drawConst(pointer,constLst, starsDct):
+    pointer.color("green")
+    for i in constLst:
+        pointer.up()
+        pointer.goto(screenCoor(float(starsDct[i[0]][0]),float(starsDct[i[0]][1])))
+        pointer.down()
+        pointer.goto(screenCoor(float(starsDct[i[1]][0]),float(starsDct[i[1]][1])))
+
 
 def main():
     stars, starsDct, names = starInfo()
     pointer = setup()
     drawAxis(pointer)
     drawStars(pointer, stars, starsDct, names)
-    #Loop getting filenames
-        #Read constellation file (function)
-        #Draw Constellation (function)
-        #Draw bounding box (Bonus) (function)
+    loopConst(pointer,starsDct)
     turtle.done()
 
 main()
